@@ -1,0 +1,36 @@
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from email.mime.base import MIMEBase
+from email import encoders
+import os.path
+import details
+
+def post_mail(gmail):
+    email=details.mymail
+    email_password=details.my_password
+    send_to_mails=gmail
+    subject=details.sub
+    body=details.mes
+    file_location=details.resume
+    filenamess = os.path.basename(file_location)
+    attachment=open(file_location,"rb")
+    part=MIMEBase('application','octet-stream')
+    part.set_payload(attachment.read())
+    encoders.encode_base64(part)
+    part.add_header('Content-Disposition', "attachment; filename= %s" % filenamess)
+
+    server = smtplib.SMTP('smtp.gmail.com',587)
+    server.starttls()
+    server.login(email,email_password)
+    for send_to_mail in send_to_mails:
+        msg=MIMEMultipart()
+        msg['From']=email
+        msg['To']=send_to_mail
+        msg['Subject']=subject
+        msg.attach(MIMEText(body,'plain'))
+        msg.attach(part)
+        text=msg.as_string()
+        server.sendmail(email,send_to_mail,text)
+    server.quit()
+

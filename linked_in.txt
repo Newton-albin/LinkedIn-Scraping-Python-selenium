@@ -1,0 +1,94 @@
+from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
+import time
+import details
+import xlsxwriter
+from parsel import Selector
+from gmail_compose import *
+
+driver=webdriver.Chrome()
+driver.get("https://www.linkedin.com")
+
+sign=driver.find_element_by_class_name('nav__button-secondary')
+sign.click()
+
+name=driver.find_element_by_id('username')
+name.send_keys(details.user_name)
+time.sleep(2)
+
+pwd=driver.find_element_by_id('password')
+pwd.send_keys(details.password)
+time.sleep(2)
+
+signin=driver.find_element_by_class_name('btn__primary--large')
+signin.click()
+time.sleep(5)
+
+#--------------------------------------------------------------------------
+
+driver.get('https://www.google.com')
+time.sleep(5)
+search_box=driver.find_element_by_name('q')
+search_box.send_keys(details.search_query)
+search_box.send_keys(Keys.ENTER)
+time.sleep(5)
+
+
+linkedin_url=driver.find_elements_by_xpath('//*[@class="r"]/a')
+linkedin_urls=[url.get_attribute('href') for url in linkedin_url]
+print(linkedin_urls)
+
+name_list=[]
+mail_list=[]
+for link in linkedin_urls:
+    driver.get(link)
+
+    time.sleep(2)
+    sel=Selector(text=driver.page_source)
+    time.sleep(2)
+    name=sel.xpath('//*[starts-with(@class,"pv-top-card--list")]/li[1]/text()').extract_first()
+    time.sleep(2)
+    name_list.append(name.strip())
+
+    contact = driver.find_element_by_xpath('//*[@class="inline-block"]/a')
+    contact.click()
+    time.sleep(2)
+
+    try:
+        mail = driver.find_element_by_partial_link_text("@")
+        time.sleep(2)
+        mail_id = mail.get_attribute('href')
+        crt_mail_id = mail_id[7:]
+        print(crt_mail_id)
+        mail_list.append(crt_mail_id)
+    except:
+
+        error="No Mail Id"
+        print(error)
+        mail_list.append(error)
+
+print(name_list)
+print(mail_list)
+
+#---------------------------------------------------------------------------------------
+
+workbook=xlsxwriter.Workbook(details.file_name)
+worksheet=workbook.add_worksheet()
+worksheet.write_column(0,0,name_list)
+worksheet.write_column(0,1,mail_list)
+worksheet.write_column(0,2,linkedin_urls)
+workbook.close()
+
+#---------------------------------------------------------------------------------------
+gmail=[]
+for i in mail_list:
+    if(i !=("No Mail Id")):
+        gmail.append(i)
+print(gmail)
+#---------------------------------------------------------------------------------------
+post_mail(gmail)
+print("MAILED SUCCESSFULLY")
+print("PROCESS COMPLETED")
+driver.close()
+
+
