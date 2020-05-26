@@ -1,7 +1,7 @@
 
 
 search_query='site:linkedin.com/in/ AND "python developer" AND  "India"'
-file_name='Your Excel  File Location'
+file_name='Your Excel  File Path'
 user_name='LinkedIn User Name'
 password='LinkedIn Password'
 
@@ -9,4 +9,4 @@ mymail="Gmail Id"
 my_password="Gmail Password"
 sub="Application for the post of junior software developer"
 mes="Willing for the post of junior software developer"
-resume='Your Resume File Location'
+resume='Your Resume File Path'
